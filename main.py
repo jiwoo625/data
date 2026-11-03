@@ -5,16 +5,13 @@ import pandas as pd
 import streamlit as st
 
 
-# ==========================================
-# 1. 앱 기본 설정
-# ==========================================
-
 APP_TITLE = "뇌졸중 예측 실습실"
 DATA_URL = "https://raw.githubusercontent.com/jiwoo625/data/refs/heads/main/stroke.csv"
 
 BASE_DIR = Path(__file__).resolve().parent
 RECORD_DIR = BASE_DIR / "내_기록"
 RECORD_FILE = RECORD_DIR / "설명_및_출처.json"
+
 
 st.set_page_config(
     page_title=APP_TITLE,
@@ -23,12 +20,8 @@ st.set_page_config(
 )
 
 
-# ==========================================
-# 2. 기록 불러오기 및 저장하기
-# ==========================================
-
 def load_notes():
-    """저장된 우리말 뜻과 데이터 출처를 불러옵니다."""
+    """JSON 파일에서 저장된 설명과 출처를 읽습니다."""
     if not RECORD_FILE.exists():
         return {"meanings": {}, "source": ""}
 
@@ -41,26 +34,22 @@ def load_notes():
             "source": saved.get("source", ""),
         }
     except (json.JSONDecodeError, OSError):
-        st.warning("기존 기록 파일을 읽지 못했습니다. 새 기록으로 시작합니다.")
+        st.warning("기존 기록 파일을 읽지 못했습니다. 빈 기록으로 시작합니다.")
         return {"meanings": {}, "source": ""}
 
 
 def save_notes(meanings, source):
-    """우리말 뜻과 데이터 출처를 JSON 파일로 저장합니다."""
+    """설명과 출처를 JSON 파일로 저장합니다."""
     RECORD_DIR.mkdir(parents=True, exist_ok=True)
 
-    data = {
+    saved_data = {
         "meanings": meanings,
         "source": source,
     }
 
     with RECORD_FILE.open("w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=2)
+        json.dump(saved_data, file, ensure_ascii=False, indent=2)
 
-
-# ==========================================
-# 3. CSV 데이터 불러오기
-# ==========================================
 
 @st.cache_data
 def load_data():
@@ -70,9 +59,10 @@ def load_data():
 try:
     df = load_data()
 except Exception as error:
-    st.error("데이터를 불러오지 못했습니다. 인터넷 연결과 데이터 주소를 확인해 주세요.")
+    st.error("CSV 데이터를 불러오지 못했습니다. 데이터 주소와 인터넷 연결을 확인하세요.")
     st.exception(error)
     st.stop()
+
 
 required_columns = [
     "id",
@@ -89,8 +79,18 @@ required_columns = [
     "stroke",
 ]
 
-missing_columns = [column for column in required_columns if column not in df.columns]
+missing_columns = [name for name in required_columns if name not in df.columns]
 
 if missing_columns:
-    st.error(f"데이터에 필요한 열이 없습니다: {', '.join(missing_columns)}")
+    st.error(f"CSV 파일에 필요한 열이 없습니다: {', '.join(missing_columns)}")
     st.stop()
+
+
+notes = load_notes()
+
+
+# 제목과 데이터 소개
+st.title(f"🧠 {APP_TITLE}")
+st.write(
+    "이 실습실에서는 뇌졸중 관련 데이터를 살펴보고 각 열의 의미를 정리합니다. "
+    "교재를 참고해 우리말 뜻과 데이터 출처를 직접 입력해 보세요."
