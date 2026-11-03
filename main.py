@@ -1,22 +1,6 @@
 
 뇌졸중 예측 앱 작성
 에서 이어짐
-main.py
-
-수정한 main.py 파일입니다.
-
-main.py
-
-문법 검사 통과
-main.py 다운로드
-
-requirements.txt 포함 ZIP 다운로드
-
-기존 GitHub의 data/main.py 내용을 전부 지우고 새 파일의 내용으로 교체한 뒤 저장해 주세요.
-
-
-main.py
-코드
 https://raw.githubusercontent.com/jiwoo625/data/refs/heads/main/stroke.csv
 보내주신 주소의 CSV 파일을 확인했습니다. 이 주소를 main.py에서 데이터 불러오기 주소로 사용하면 됩니다.
 
@@ -91,6 +75,71 @@ main.py
 
 requirements.txt
 문서
+File "/mount/src/data/main.py", line 52
+  …
+  ^
+SyntaxError: invalid character '…' (U+2026) 오류가 났어 오류가 안나게 다시 수정해줘
+
+오류 원인인 특수 말줄임표 문자(…, U+2026)를 제거하고 main.py를 다시 작성했습니다.
+
+문법 검사 통과 특수 말줄임표 제거 확인
+
+수정된 파일
+새 수정본 ZIP
+
+main.py + requirements.txt 다운로드
+
+두 파일 모두 포함되어 있습니다.
+
+교체 방법
+ZIP 압축을 풉니다.
+
+GitHub의 data/main.py를 엽니다.
+
+기존 내용을 처음부터 끝까지 전부 삭제합니다.
+
+새 main.py 내용을 전부 붙여 넣습니다.
+
+requirements.txt도 교체합니다.
+
+Commit changes를 누릅니다.
+
+중요: 기존 코드 아래에 새 코드를 이어 붙이지 말고, 기존 내용을 전부 지운 뒤 교체해 주세요.
+
+개별로
+개별 파일로 준비했습니다.
+
+main.py 다운로드
+
+requirements.txt 다운로드
+
+두 파일을 각각 GitHub의 data 폴더에 올려 주세요. 기존 파일은 새 파일로 완전히 교체하면 됩니다.
+
+
+main.py
+코드
+
+requirements.txt
+문서
+파일이 불러지지 않아
+
+
+파일을 새 경로에 개별적으로 다시 만들었습니다. 이번에는 아래 링크를 눌러 주세요.
+
+ main.py 다운로드
+
+ requirements.txt 다운로드
+
+main.py는 Python 문법 검사까지 통과했습니다.
+
+그래도 파일이 열리지 않으면 어떤 파일을 눌렀을 때 안 되는지, 오류 메시지가 무엇인지 알려주세요.
+
+
+main.py
+코드
+
+requirements.txt
+문서
 
 
 
@@ -100,7 +149,6 @@ import json
 import pandas as pd
 import streamlit as st
 
-
 APP_TITLE = "뇌졸중 예측 실습실"
 DATA_URL = "https://raw.githubusercontent.com/jiwoo625/data/refs/heads/main/stroke.csv"
 
@@ -108,46 +156,33 @@ BASE_DIR = Path(__file__).resolve().parent
 RECORD_DIR = BASE_DIR / "내_기록"
 RECORD_FILE = RECORD_DIR / "설명_및_출처.json"
 
-st.set_page_config(
-    page_title=APP_TITLE,
-    page_icon="🧠",
-    layout="wide",
-)
+st.set_page_config(page_title=APP_TITLE, page_icon="🧠", layout="wide")
 
 
 def load_notes():
-    """저장된 우리말 뜻과 출처를 불러옵니다."""
     if not RECORD_FILE.exists():
         return {"meanings": {}, "source": ""}
-
     try:
         with RECORD_FILE.open("r", encoding="utf-8") as file:
-            saved = json.load(file)
-
+            data = json.load(file)
         return {
-            "meanings": saved.get("meanings", {}),
-            "source": saved.get("source", ""),
+            "meanings": data.get("meanings", {}),
+            "source": data.get("source", ""),
         }
     except (OSError, json.JSONDecodeError):
-        st.warning("기존 기록 파일을 읽지 못해 빈 내용으로 시작합니다.")
+        st.warning("저장된 기록을 읽지 못했습니다. 빈 내용으로 시작합니다.")
         return {"meanings": {}, "source": ""}
 
 
 def save_notes(meanings, source):
-    """우리말 뜻과 출처를 JSON 파일로 저장합니다."""
     RECORD_DIR.mkdir(parents=True, exist_ok=True)
-    saved = {
-        "meanings": meanings,
-        "source": source,
-    }
-
+    data = {"meanings": meanings, "source": source}
     with RECORD_FILE.open("w", encoding="utf-8") as file:
-        json.dump(saved, file, ensure_ascii=False, indent=2)
+        json.dump(data, file, ensure_ascii=False, indent=2)
 
 
 @st.cache_data
 def load_data():
-    """GitHub CSV를 UTF-8 인코딩으로 읽습니다."""
     return pd.read_csv(DATA_URL, encoding="utf-8")
 
 
@@ -157,7 +192,7 @@ st.write(
     "교재를 참고해 각 열의 우리말 뜻과 데이터 출처를 직접 기록해 보세요."
 )
 st.info(
-    "이 앱은 데이터 탐색을 위한 학습용 도구입니다. "
+    "이 앱은 데이터 탐색 학습용 도구입니다. "
     "개인의 건강 상태를 진단하거나 뇌졸중 발생 가능성을 판단하지 않습니다."
 )
 
@@ -169,24 +204,38 @@ except Exception as error:
     st.stop()
 
 expected_columns = [
-    "id",
-    "gender",
-    "age",
-    "hypertension",
-    "heart_disease",
-    "ever_married",
-    "work_type",
-    "Residence_type",
-    "avg_glucose_level",
-    "bmi",
-    "smoking_status",
-    "stroke",
+    "id", "gender", "age", "hypertension", "heart_disease",
+    "ever_married", "work_type", "Residence_type",
+    "avg_glucose_level", "bmi", "smoking_status", "stroke",
 ]
-
 missing_columns = [name for name in expected_columns if name not in df.columns]
 if missing_columns:
-    st.error("CSV 파일에서 다음 열을 찾을 수 없습니다: " + ", ".join(missing_columns))
+    st.error("필요한 열을 찾을 수 없습니다: " + ", ".join(missing_columns))
     st.stop()
 
 notes = load_notes()
+people_count = len(df)
+column_count = len(df.columns)
+stroke_count = int((df["stroke"] == 1).sum())
+stroke_percent = stroke_count / people_count * 100 if people_count else 0.0
 
+st.subheader("데이터 한눈에 보기")
+card1, card2, card3, card4 = st.columns(4)
+card1.metric("전체 사람 수", f"{people_count:,}명")
+card2.metric("열 개수", f"{column_count:,}개")
+card3.metric("stroke가 1인 사람 수", f"{stroke_count:,}명")
+card4.metric("stroke가 1인 비율", f"{stroke_percent:.2f}%")
+
+st.divider()
+st.subheader("열 이름과 우리말 뜻")
+st.write("우리말 뜻 칸을 클릭해 교재에 나온 설명을 입력하세요.")
+
+saved_meanings = notes.get("meanings", {})
+rows = []
+for column in df.columns:
+    if pd.api.types.is_numeric_dtype(df[column]):
+        value_type = f"수치형 ({df[column].nunique(dropna=True):,}종류)"
+    else:
+        value_type = f"범주형 ({df[column].nunique(dropna=True):,}종류)"
+    rows.append({
+        "열 이름": column,
